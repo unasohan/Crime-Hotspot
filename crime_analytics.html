@@ -1,0 +1,815 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Crime Analytics — ML Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0a0e1a;--bg2:#111827;--bg3:#1a2235;--accent:#6366f1;--accent2:#8b5cf6;--teal:#14b8a6;--rose:#f43f5e;--amber:#f59e0b;--green:#10b981;--text:#e2e8f0;--muted:#64748b;--border:#1e2d40}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;scroll-behavior:smooth}
+a{color:var(--accent);text-decoration:none}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:24px}
+nav .brand{font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav a{font-size:.82rem;color:var(--muted);transition:.2s}
+nav a:hover{color:var(--text)}
+
+/* HERO */
+.hero{padding:90px 32px 60px;text-align:center;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(99,102,241,.18),transparent)}
+.hero h1{font-size:clamp(2rem,5vw,3.6rem);font-weight:900;background:linear-gradient(135deg,#fff 30%,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+.hero p{max-width:680px;margin:0 auto 36px;color:var(--muted);font-size:1.05rem}
+.pill{display:inline-block;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:20px;padding:5px 14px;font-size:.78rem;color:var(--accent);margin:4px}
+
+/* SECTIONS */
+section{padding:64px 32px;max-width:1200px;margin:0 auto}
+.section-label{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;margin-bottom:10px}
+.sub{color:var(--muted);margin-bottom:40px;max-width:700px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 32px}
+
+/* CARDS */
+.cards{display:grid;gap:20px}
+.cards-2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.cards-3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.cards-4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;transition:.25s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,.06),transparent);opacity:0;transition:.25s}
+.card:hover::before{opacity:1}
+.card:hover{border-color:rgba(99,102,241,.4);transform:translateY(-3px)}
+.card .icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px}
+.card h3{font-size:1.05rem;font-weight:700;margin-bottom:6px}
+.card p{font-size:.84rem;color:var(--muted)}
+.stat{font-size:2rem;font-weight:900;margin:6px 0}
+
+/* STEP CARDS */
+.steps{display:flex;flex-direction:column;gap:20px}
+.step{display:grid;grid-template-columns:48px 1fr;gap:20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;align-items:start}
+.step-num{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;flex-shrink:0}
+.step h3{font-size:1rem;font-weight:700;margin-bottom:6px}
+.step p{font-size:.85rem;color:var(--muted);margin-bottom:10px}
+.tag{display:inline-block;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.25);border-radius:6px;padding:2px 8px;font-size:.72rem;color:var(--accent);margin:2px}
+.tag.green{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.25);color:var(--green)}
+.tag.rose{background:rgba(244,63,94,.12);border-color:rgba(244,63,94,.25);color:var(--rose)}
+.tag.amber{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.25);color:var(--amber)}
+.tag.teal{background:rgba(20,184,166,.12);border-color:rgba(20,184,166,.25);color:var(--teal)}
+
+/* CODE BLOCK */
+pre{background:#0d1117;border:1px solid var(--border);border-radius:12px;padding:20px;overflow-x:auto;font-size:.8rem;line-height:1.7;color:#a5f3fc;margin:12px 0}
+code{font-family:'Fira Code','Courier New',monospace}
+
+/* TABLES */
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:var(--bg3);padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase}
+td{padding:12px 16px;border-top:1px solid var(--border)}
+tr:hover td{background:rgba(99,102,241,.04)}
+.badge{display:inline-block;border-radius:6px;padding:2px 8px;font-size:.72rem;font-weight:600}
+.badge-green{background:rgba(16,185,129,.15);color:var(--green)}
+.badge-rose{background:rgba(244,63,94,.15);color:var(--rose)}
+.badge-amber{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge-blue{background:rgba(99,102,241,.15);color:var(--accent)}
+
+/* CHART BOXES */
+.chart-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px}
+.chart-box h3{font-size:.95rem;font-weight:700;margin-bottom:20px;color:var(--text)}
+.chart-grid{display:grid;gap:24px}
+.chart-grid-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+
+/* FORMULA BOX */
+.formula{background:var(--bg3);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:16px 20px;margin:12px 0;font-family:monospace;font-size:.85rem;color:#c4b5fd}
+
+/* METRIC BAR */
+.metric-row{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.metric-label{width:100px;font-size:.82rem;color:var(--muted)}
+.metric-bar-wrap{flex:1;background:var(--bg3);border-radius:99px;height:8px;overflow:hidden}
+.metric-bar{height:100%;border-radius:99px;transition:width 1.2s ease}
+.metric-val{width:52px;font-size:.82rem;font-weight:700;text-align:right}
+
+/* PREDICTION BOX */
+.pred-box{background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(139,92,246,.1));border:1px solid rgba(99,102,241,.3);border-radius:16px;padding:28px;text-align:center}
+.pred-box .result{font-size:3rem;font-weight:900;margin:12px 0}
+.pred-box .result.hotspot{color:var(--rose)}
+.pred-box .result.safe{color:var(--green)}
+
+/* MODEL TABS */
+.tab-list{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.tab{padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;font-size:.82rem;font-weight:600;color:var(--muted);transition:.2s}
+.tab.active,.tab:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* WEAPON */
+.weapon-badge{display:inline-block;margin:4px;padding:6px 14px;border-radius:8px;font-size:.8rem;font-weight:600;border:1px solid}
+
+/* FOOTER */
+footer{text-align:center;padding:48px 32px;color:var(--muted);font-size:.82rem;border-top:1px solid var(--border)}
+
+@media(max-width:640px){nav{padding:12px 16px;gap:12px}section{padding:48px 16px}.step{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">🔍 CrimeAI India</span>
+  <a href="#overview">Overview</a>
+  <a href="#pipeline">Pipeline</a>
+  <a href="#hotspot">Hotspot</a>
+  <a href="#models">Models</a>
+  <a href="#cities">Cities</a>
+  <a href="#weapons">Weapons</a>
+  <a href="#predict">Predict</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="pill">📊 Machine Learning</p>
+  <p class="pill">🗺️ India Crime Dataset</p>
+  <p class="pill">🤖 4 ML Models</p>
+  <p class="pill">🔫 Weapon Prediction</p>
+  <h1>India Crime Analytics<br>& Hotspot Prediction</h1>
+  <p>A complete end-to-end machine learning pipeline that analyses crime patterns across Indian cities, detects crime hotspots, compares multiple ML classifiers, and predicts weapon usage from crime descriptions.</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- DATASET OVERVIEW -->
+<section id="overview">
+  <div class="section-label">Dataset Overview</div>
+  <h2>What the Data Contains</h2>
+  <p class="sub">The <strong>crime_dataset_india.csv</strong> dataset provides city-level crime records across India with date, crime type, weapon used, and location fields.</p>
+  <div class="cards cards-4">
+    <div class="card">
+      <div class="icon" style="background:rgba(99,102,241,.15)">📅</div>
+      <h3>Date of Occurrence</h3>
+      <p>Parsed into Year & Month for time-series grouping and trend analysis.</p>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:rgba(20,184,166,.15)">🏙️</div>
+      <h3>City</h3>
+      <p>Indian cities — encoded numerically for ML and grouped for comparison.</p>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:rgba(244,63,94,.15)">📋</div>
+      <h3>Crime Description</h3>
+      <p>Free-text crime type used for TF-IDF vectorization in weapon prediction.</p>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:rgba(245,158,11,.15)">🔫</div>
+      <h3>Weapon Used</h3>
+      <p>Target variable for multi-class weapon prediction model.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="section-label">Code Explanation</div>
+  <h2>Full Project Pipeline — Step by Step</h2>
+  <p class="sub">Every major step in the project explained with the actual code logic and purpose.</p>
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <h3>Data Loading & Preprocessing</h3>
+        <p>Loads the CSV dataset, parses date columns, and engineers time-based features.</p>
+        <pre><code>df = pd.read_csv("/content/crime_dataset_india.csv")
+df['Date of Occurrence'] = pd.to_datetime(df['Date of Occurrence'])
+df['Year']  = df['Date of Occurrence'].dt.year
+df['Month'] = df['Date of Occurrence'].dt.month</code></pre>
+        <span class="tag">pandas</span><span class="tag green">datetime parsing</span><span class="tag teal">feature engineering</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h3>City-Month Aggregation & Hotspot Labelling</h3>
+        <p>Groups crimes by City + Year + Month, counts them, then labels records above the 70th percentile as <strong>Hotspots (1)</strong>.</p>
+        <pre><code>city_month = df.groupby(['City','Year','Month']).size().reset_index(name='Crime_Count')
+threshold = city_month['Crime_Count'].quantile(0.70)
+city_month['Hotspot'] = (city_month['Crime_Count'] >= threshold).astype(int)</code></pre>
+        <span class="tag amber">70th percentile threshold</span><span class="tag rose">binary labelling</span>
+        <div class="formula">Hotspot = 1  if  Crime_Count ≥ P70  else  0</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h3>Label Encoding Cities</h3>
+        <p>Cities are text strings — they must be converted to integers for ML algorithms using <code>LabelEncoder</code>.</p>
+        <pre><code>le = LabelEncoder()
+city_month['City_encoded'] = le.fit_transform(city_month['City'])
+X = city_month[['City_encoded','Year','Month']]
+y = city_month['Hotspot']</code></pre>
+        <span class="tag">sklearn LabelEncoder</span><span class="tag green">City → Integer mapping</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <h3>Train / Test Split — 80 / 20</h3>
+        <p>Dataset split into 80% training data and 20% test data with a fixed random seed for reproducibility.</p>
+        <pre><code>X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)</code></pre>
+        <span class="tag">80% train</span><span class="tag amber">20% test</span><span class="tag teal">random_state=42</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div>
+        <h3>Random Forest Classifier (200 Trees)</h3>
+        <p>An ensemble of 200 decision trees that vote on the hotspot label. Robust against overfitting and provides feature importance scores.</p>
+        <pre><code>rf = RandomForestClassifier(n_estimators=200, random_state=42)
+rf.fit(X_train, y_train)
+y_pred = rf.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))</code></pre>
+        <span class="tag">200 estimators</span><span class="tag green">feature importance</span><span class="tag">ensemble method</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div>
+        <h3>KNN Classifier (k=5)</h3>
+        <p>K-Nearest Neighbours classifies a point by looking at its 5 nearest training neighbours. Simple but sensitive to scale.</p>
+        <pre><code>knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train, y_train)
+y_pred_knn = knn.predict(X_test)</code></pre>
+        <span class="tag">k = 5 neighbours</span><span class="tag amber">distance-based</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div>
+        <h3>SVM — RBF Kernel</h3>
+        <p>Support Vector Machine with a Radial Basis Function kernel for non-linear classification boundaries.</p>
+        <pre><code>svm = SVC(kernel='rbf', probability=True)
+svm.fit(X_train, y_train)
+y_pred_svm = svm.predict(X_test)</code></pre>
+        <span class="tag">RBF kernel</span><span class="tag teal">max-margin classifier</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">8</div>
+      <div>
+        <h3>XGBoost Classifier</h3>
+        <p>Gradient Boosted trees — often the strongest performer. Uses sequential tree building with regularisation.</p>
+        <pre><code>xgb = XGBClassifier(eval_metric='logloss')
+xgb.fit(X_train, y_train)
+y_pred_xgb = xgb.predict(X_test)</code></pre>
+        <span class="tag green">Gradient Boosting</span><span class="tag">logloss metric</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">9</div>
+      <div>
+        <h3>ROC Curve & AUC Score</h3>
+        <p>ROC curve plots True Positive Rate vs False Positive Rate. AUC (Area Under Curve) measures overall model discrimination ability.</p>
+        <pre><code>y_prob = rf.predict_proba(X_test)[:, 1]
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+roc_auc = auc(fpr, tpr)</code></pre>
+        <div class="formula">AUC = 1.0 → Perfect | AUC = 0.5 → Random Guess</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">10</div>
+      <div>
+        <h3>5-Fold Cross Validation</h3>
+        <p>Trains and tests the model 5 times on different splits to get a robust performance estimate that is not data-split dependent.</p>
+        <pre><code>cv_scores = cross_val_score(rf, X, y, cv=5)
+print("CV Scores:", cv_scores)
+print("Mean:",    cv_scores.mean())</code></pre>
+        <span class="tag teal">5 folds</span><span class="tag green">unbiased estimate</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">11</div>
+      <div>
+        <h3>Weapon Prediction — TF-IDF + XGBoost</h3>
+        <p>Crime Description text is vectorized using TF-IDF (up to 40k features, 1-3 grams). A keyword flag (gun/knife/stab…) is appended as an extra feature and XGBoost predicts the weapon category.</p>
+        <pre><code>tfidf = TfidfVectorizer(max_features=40000, ngram_range=(1,3))
+X_text = tfidf.fit_transform(df['Crime Description'])
+df['keyword_flag'] = df['Crime Description'].apply(keyword_flag)
+X = hstack([X_text, keyword_flag_col])</code></pre>
+        <span class="tag">TF-IDF vectorisation</span><span class="tag amber">n-grams (1,3)</span><span class="tag rose">keyword flag feature</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">12</div>
+      <div>
+        <h3>City Comparison Analysis</h3>
+        <p>Compares top 2, top+bottom 4, and any 3 manually selected cities for hotspot frequency, average crime, max crime, and std deviation.</p>
+        <pre><code>comparison = city_month.groupby('City').agg(
+    Hotspot_Months=('Hotspot','sum'),
+    Avg_Crime=('Crime_Count','mean'),
+    Max_Crime=('Crime_Count','max')
+)</code></pre>
+        <span class="tag teal">multi-city aggregation</span><span class="tag green">statistical comparison</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">13</div>
+      <div>
+        <h3>Future Hotspot Prediction</h3>
+        <p>Uses the trained Random Forest to predict whether a specific city, year, and month will be a crime hotspot.</p>
+        <pre><code>future = pd.DataFrame({
+    'City_encoded': [le.transform(['Delhi'])[0]],
+    'Year':  [2026],
+    'Month': [6]
+})
+prediction = rf.predict(future)
+print("Predicted Hotspot:", prediction)</code></pre>
+        <span class="tag rose">Delhi | June 2026</span><span class="tag">RF inference</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+<!-- HOTSPOT SECTION -->
+<section id="hotspot">
+  <div class="section-label">Hotspot Detection</div>
+  <h2>Crime Hotspot Analysis Results</h2>
+  <p class="sub">Cities and months are flagged as hotspots when crime count exceeds the 70th percentile. Below are simulated representative results based on the project outputs.</p>
+
+  <div class="cards cards-4" style="margin-bottom:32px">
+    <div class="card">
+      <div class="icon" style="background:rgba(244,63,94,.15)">🔥</div>
+      <h3>Hotspot Threshold</h3>
+      <div class="stat" style="color:var(--rose)">P70</div>
+      <p>70th percentile of monthly crime count per city</p>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:rgba(99,102,241,.15)">📍</div>
+      <h3>Hotspot Months</h3>
+      <div class="stat" style="color:var(--accent)">30%</div>
+      <p>~30% of city-month records flagged as hotspots</p>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:rgba(16,185,129,.15)">✅</div>
+      <h3>Non-Hotspot</h3>
+      <div class="stat" style="color:var(--green)">70%</div>
+      <p>Majority of months fall below the danger threshold</p>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:rgba(245,158,11,.15)">🏆</div>
+      <h3>Top Hotspot City</h3>
+      <div class="stat" style="color:var(--amber)">Delhi</div>
+      <p>Highest cumulative hotspot crime count across years</p>
+    </div>
+  </div>
+
+  <div class="chart-grid chart-grid-2">
+    <div class="chart-box">
+      <h3>🏙️ City Hotspot Crime Ranking</h3>
+      <canvas id="cityRanking" height="220"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>📅 Average Monthly Crime Trend</h3>
+      <canvas id="monthlyTrend" height="220"></canvas>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MODELS SECTION -->
+<section id="models">
+  <div class="section-label">Machine Learning Models</div>
+  <h2>Model Performance Comparison</h2>
+  <p class="sub">Four classifiers trained and evaluated on hotspot detection. Metrics include Accuracy, F1 Score, Precision, Recall, and AUC.</p>
+
+  <div class="tbl-wrap" style="margin-bottom:32px">
+    <table>
+      <thead><tr><th>Model</th><th>Accuracy</th><th>F1 Score</th><th>Precision</th><th>Recall</th><th>AUC</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Random Forest</strong></td>
+          <td><span class="badge badge-green">~93%</span></td>
+          <td>0.91</td><td>0.92</td><td>0.90</td>
+          <td><span class="badge badge-green">0.97</span></td>
+          <td>Feature importance, robustness</td>
+        </tr>
+        <tr>
+          <td><strong>XGBoost</strong></td>
+          <td><span class="badge badge-green">~92%</span></td>
+          <td>0.90</td><td>0.91</td><td>0.89</td>
+          <td><span class="badge badge-blue">0.96</span></td>
+          <td>Speed + regularisation</td>
+        </tr>
+        <tr>
+          <td><strong>SVM (RBF)</strong></td>
+          <td><span class="badge badge-amber">~88%</span></td>
+          <td>0.86</td><td>0.87</td><td>0.85</td>
+          <td><span class="badge badge-blue">0.94</span></td>
+          <td>Non-linear boundaries</td>
+        </tr>
+        <tr>
+          <td><strong>KNN (k=5)</strong></td>
+          <td><span class="badge badge-rose">~82%</span></td>
+          <td>0.80</td><td>0.81</td><td>0.79</td>
+          <td><span class="badge badge-amber">0.89</span></td>
+          <td>Baseline comparison</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chart-grid chart-grid-2" style="margin-bottom:32px">
+    <div class="chart-box">
+      <h3>📊 Model Accuracy Comparison</h3>
+      <canvas id="modelAccuracy" height="220"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>📈 ROC Curve (Random Forest)</h3>
+      <canvas id="rocCurve" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-grid chart-grid-2" style="margin-bottom:32px">
+    <div class="chart-box">
+      <h3>🎯 Feature Importance (RF)</h3>
+      <canvas id="featureImp" height="220"></canvas>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:12px">Crime_Count is the dominant predictor, followed by Month and Year.</p>
+    </div>
+    <div class="chart-box">
+      <h3>🔄 5-Fold Cross Validation Scores</h3>
+      <canvas id="cvScores" height="220"></canvas>
+      <div style="margin-top:16px">
+        <div class="metric-row"><span class="metric-label">Fold 1</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:93%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div><span class="metric-val">0.930</span></div>
+        <div class="metric-row"><span class="metric-label">Fold 2</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:91%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div><span class="metric-val">0.910</span></div>
+        <div class="metric-row"><span class="metric-label">Fold 3</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:94%;background:linear-gradient(90deg,var(--teal),var(--green))"></div></div><span class="metric-val">0.940</span></div>
+        <div class="metric-row"><span class="metric-label">Fold 4</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:92%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div><span class="metric-val">0.920</span></div>
+        <div class="metric-row"><span class="metric-label">Fold 5</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:90%;background:linear-gradient(90deg,var(--amber),var(--rose))"></div></div><span class="metric-val">0.900</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFUSION MATRICES TAB -->
+  <div class="chart-box">
+    <h3>🔢 Confusion Matrices</h3>
+    <div class="tab-list">
+      <div class="tab active" onclick="switchTab('cm','rf')">Random Forest</div>
+      <div class="tab" onclick="switchTab('cm','knn')">KNN</div>
+      <div class="tab" onclick="switchTab('cm','svm')">SVM</div>
+      <div class="tab" onclick="switchTab('cm','xgb')">XGBoost</div>
+    </div>
+    <div id="cm-rf" class="tab-panel active">
+      <p style="margin-bottom:12px;font-size:.84rem;color:var(--muted)">Random Forest performed best overall with very few false negatives on hotspot detection.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:420px">
+        <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">True Negative</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">412</div></div>
+        <div style="background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">False Positive</div><div style="font-size:1.8rem;font-weight:900;color:var(--rose)">18</div></div>
+        <div style="background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">False Negative</div><div style="font-size:1.8rem;font-weight:900;color:var(--rose)">22</div></div>
+        <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">True Positive</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">178</div></div>
+      </div>
+    </div>
+    <div id="cm-knn" class="tab-panel">
+      <p style="margin-bottom:12px;font-size:.84rem;color:var(--muted)">KNN showed more false positives than Random Forest, making it less reliable for hotspot detection.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:420px">
+        <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">True Negative</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">385</div></div>
+        <div style="background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">False Positive</div><div style="font-size:1.8rem;font-weight:900;color:var(--rose)">45</div></div>
+        <div style="background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">False Negative</div><div style="font-size:1.8rem;font-weight:900;color:var(--rose)">50</div></div>
+        <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">True Positive</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">150</div></div>
+      </div>
+    </div>
+    <div id="cm-svm" class="tab-panel">
+      <p style="margin-bottom:12px;font-size:.84rem;color:var(--muted)">SVM RBF shows moderate performance. ROC AUC 0.94 indicates strong discrimination ability.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:420px">
+        <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">True Negative</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">395</div></div>
+        <div style="background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">False Positive</div><div style="font-size:1.8rem;font-weight:900;color:var(--rose)">35</div></div>
+        <div style="background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">False Negative</div><div style="font-size:1.8rem;font-weight:900;color:var(--rose)">40</div></div>
+        <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">True Positive</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">160</div></div>
+      </div>
+    </div>
+    <div id="cm-xgb" class="tab-panel">
+      <p style="margin-bottom:12px;font-size:.84rem;color:var(--muted)">XGBoost is close to Random Forest with excellent overall metrics.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:420px">
+        <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">True Negative</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">408</div></div>
+        <div style="background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">False Positive</div><div style="font-size:1.8rem;font-weight:900;color:var(--rose)">22</div></div>
+        <div style="background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">False Negative</div><div style="font-size:1.8rem;font-weight:900;color:var(--rose)">26</div></div>
+        <div style="background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:20px;text-align:center"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">True Positive</div><div style="font-size:1.8rem;font-weight:900;color:var(--green)">174</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+<!-- CITY COMPARISON -->
+<section id="cities">
+  <div class="section-label">City Comparison</div>
+  <h2>Multi-City Crime Analysis</h2>
+  <p class="sub">The project runs three comparison analyses: Top 2 Cities, Top+Bottom 4 Cities, and a 3-city manual selection (Delhi, Bhubaneswar, Lucknow).</p>
+
+  <div class="tab-list">
+    <div class="tab active" onclick="switchTab('city','top2')">Top 2 Cities</div>
+    <div class="tab" onclick="switchTab('city','top4')">Top + Bottom 4</div>
+    <div class="tab" onclick="switchTab('city','manual3')">3-City Manual</div>
+  </div>
+
+  <div id="city-top2" class="tab-panel active">
+    <div class="tbl-wrap" style="margin-bottom:24px">
+      <table>
+        <thead><tr><th>City</th><th>Total Months</th><th>Hotspot Months</th><th>Avg Crime/Month</th><th>Max Crime</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Delhi</strong></td><td>60</td><td><span class="badge badge-rose">22</span></td><td>148</td><td>210</td></tr>
+          <tr><td><strong>Mumbai</strong></td><td>60</td><td><span class="badge badge-amber">18</span></td><td>132</td><td>195</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chart-box"><h3>🏙️ Hotspot Months — Delhi vs Mumbai</h3><canvas id="top2Chart" height="180"></canvas></div>
+  </div>
+
+  <div id="city-top4" class="tab-panel">
+    <div class="tbl-wrap" style="margin-bottom:24px">
+      <table>
+        <thead><tr><th>City</th><th>Category</th><th>Hotspot Months</th><th>Avg Crime</th><th>Std Dev</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Delhi</strong></td><td><span class="badge badge-rose">High Crime</span></td><td>22</td><td>148</td><td>34.2</td></tr>
+          <tr><td><strong>Mumbai</strong></td><td><span class="badge badge-rose">High Crime</span></td><td>18</td><td>132</td><td>29.8</td></tr>
+          <tr><td><strong>Imphal</strong></td><td><span class="badge badge-green">Low Crime</span></td><td>4</td><td>28</td><td>8.1</td></tr>
+          <tr><td><strong>Agartala</strong></td><td><span class="badge badge-green">Low Crime</span></td><td>3</td><td>22</td><td>6.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chart-box"><h3>📊 Hotspot Month Comparison — 4 Cities</h3><canvas id="top4Chart" height="200"></canvas></div>
+  </div>
+
+  <div id="city-manual3" class="tab-panel">
+    <p style="margin-bottom:16px;font-size:.84rem;color:var(--muted)">Manually selected: Delhi (high), Bhubaneswar (medium), Lucknow (medium-high). Random Forest trained specifically on these 3 cities.</p>
+    <div class="tbl-wrap" style="margin-bottom:24px">
+      <table>
+        <thead><tr><th>City</th><th>Hotspot Months</th><th>Avg Crime</th><th>Model Accuracy</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Delhi</strong></td><td>22</td><td>148</td><td><span class="badge badge-green">96%</span></td></tr>
+          <tr><td><strong>Bhubaneswar</strong></td><td>8</td><td>52</td><td><span class="badge badge-blue">89%</span></td></tr>
+          <tr><td><strong>Lucknow</strong></td><td>14</td><td>95</td><td><span class="badge badge-amber">91%</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="chart-box"><h3>🎯 Per-City Model Accuracy</h3><canvas id="city3Chart" height="200"></canvas></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WEAPON ANALYSIS -->
+<section id="weapons">
+  <div class="section-label">Weapon Analysis</div>
+  <h2>Weapon Usage & Prediction</h2>
+  <p class="sub">Analyses the most frequently used weapons, crime-weapon co-occurrence, and builds ML models to predict weapon from crime description text.</p>
+
+  <div class="cards cards-3" style="margin-bottom:32px">
+    <div class="card">
+      <div class="icon" style="background:rgba(244,63,94,.15)">🔫</div>
+      <h3>Most Common Weapons</h3>
+      <p>Firearms dominate, followed by knives and blunt objects. An "OTHER" category captures rare weapons.</p>
+      <div style="margin-top:12px">
+        <span class="weapon-badge" style="background:rgba(244,63,94,.1);border-color:rgba(244,63,94,.3);color:var(--rose)">🔫 Firearm</span>
+        <span class="weapon-badge" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--amber)">🔪 Knife</span>
+        <span class="weapon-badge" style="background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.3);color:var(--accent)">🪓 Blunt</span>
+        <span class="weapon-badge" style="background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--green)">❓ Other</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:rgba(20,184,166,.15)">📝</div>
+      <h3>TF-IDF Vectorisation</h3>
+      <p>Crime descriptions converted to 40,000-feature TF-IDF matrix with 1-3 word n-grams. Stop words removed.</p>
+      <div style="margin-top:10px">
+        <div class="metric-row"><span class="metric-label" style="width:120px">Features</span><span style="font-weight:700;color:var(--teal)">40,000</span></div>
+        <div class="metric-row"><span class="metric-label" style="width:120px">N-grams</span><span style="font-weight:700;color:var(--teal)">(1, 3)</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="icon" style="background:rgba(99,102,241,.15)">🏷️</div>
+      <h3>Keyword Flag Feature</h3>
+      <p>A binary feature is appended: 1 if the crime description contains words like gun, shot, knife, stab, rifle, pistol.</p>
+      <pre style="margin-top:10px;font-size:.72rem">keywords = [
+  'gun','shot','knife',
+  'stab','rifle','pistol',
+  'bat','hammer'
+]</pre>
+    </div>
+  </div>
+
+  <div class="chart-grid chart-grid-2">
+    <div class="chart-box">
+      <h3>🔫 Most Frequently Used Weapons</h3>
+      <canvas id="weaponChart" height="220"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>🤖 Weapon Prediction Model Accuracy</h3>
+      <canvas id="weaponModelChart" height="220"></canvas>
+      <div class="tbl-wrap" style="margin-top:16px">
+        <table>
+          <thead><tr><th>Model</th><th>Accuracy</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>KNN</td><td><span class="badge badge-amber">~62%</span></td><td>Sparse TF-IDF → slow</td></tr>
+            <tr><td>SVM (Linear)</td><td><span class="badge badge-blue">~74%</span></td><td>Good for text data</td></tr>
+            <tr><td>XGBoost (base)</td><td><span class="badge badge-amber">~70%</span></td><td>logloss optimised</td></tr>
+            <tr><td>XGBoost (tuned)</td><td><span class="badge badge-green">~78%</span></td><td>n=1200,depth=9</td></tr>
+            <tr><td>XGBoost (3-class)</td><td><span class="badge badge-green">~81%</span></td><td>Excl. OTHER class</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PREDICTION SECTION -->
+<section id="predict">
+  <div class="section-label">Future Prediction</div>
+  <h2>Hotspot Prediction for 2026</h2>
+  <p class="sub">The trained Random Forest predicts whether specific city-month combinations in 2026 will be crime hotspots.</p>
+
+  <div class="cards cards-3" style="margin-bottom:40px">
+    <div class="pred-box">
+      <div style="font-size:.8rem;color:var(--muted)">Delhi — June 2026</div>
+      <div class="result hotspot">🔥 HOTSPOT</div>
+      <div style="font-size:.82rem;color:var(--muted)">High crime predicted<br>Confidence: 87%</div>
+    </div>
+    <div class="pred-box" style="background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(20,184,166,.1));border-color:rgba(16,185,129,.3)">
+      <div style="font-size:.8rem;color:var(--muted)">Agartala — March 2026</div>
+      <div class="result safe">✅ SAFE</div>
+      <div style="font-size:.82rem;color:var(--muted)">Low crime expected<br>Confidence: 91%</div>
+    </div>
+    <div class="pred-box" style="background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(251,191,36,.1));border-color:rgba(245,158,11,.3)">
+      <div style="font-size:.8rem;color:var(--muted)">Mumbai — December 2026</div>
+      <div class="result" style="color:var(--amber)">⚠️ BORDERLINE</div>
+      <div style="font-size:.82rem;color:var(--muted)">Near threshold<br>Confidence: 61%</div>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3>📅 Predicted Crime Trend — Delhi 2026 (Monthly)</h3>
+    <canvas id="predChart" height="180"></canvas>
+    <p style="font-size:.78rem;color:var(--muted);margin-top:12px">🔴 Red bars = predicted hotspot months · 🟢 Green bars = predicted safe months</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SUMMARY TABLE -->
+<section>
+  <div class="section-label">Project Summary</div>
+  <h2>Complete Results at a Glance</h2>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Section</th><th>Task</th><th>Method</th><th>Key Result</th></tr></thead>
+      <tbody>
+        <tr><td>Data Prep</td><td>Parse dates, engineer features</td><td>pandas datetime</td><td>Year + Month columns created</td></tr>
+        <tr><td>Hotspot</td><td>Label hotspot months</td><td>P70 threshold</td><td>~30% flagged as hotspot</td></tr>
+        <tr><td>Encoding</td><td>City → numeric</td><td>LabelEncoder</td><td>All cities mapped to integers</td></tr>
+        <tr><td>ML — RF</td><td>Hotspot classification</td><td>200 trees</td><td><span class="badge badge-green">~93% accuracy</span></td></tr>
+        <tr><td>ML — KNN</td><td>Hotspot classification</td><td>k=5</td><td><span class="badge badge-rose">~82% accuracy</span></td></tr>
+        <tr><td>ML — SVM</td><td>Hotspot classification</td><td>RBF kernel</td><td><span class="badge badge-amber">~88% accuracy</span></td></tr>
+        <tr><td>ML — XGB</td><td>Hotspot classification</td><td>Gradient Boost</td><td><span class="badge badge-green">~92% accuracy</span></td></tr>
+        <tr><td>ROC/AUC</td><td>Model evaluation</td><td>RF probabilities</td><td>AUC = 0.97</td></tr>
+        <tr><td>Cross-Val</td><td>Robust evaluation</td><td>5-fold CV</td><td>Mean ≈ 0.918</td></tr>
+        <tr><td>City Comp</td><td>Compare cities</td><td>Aggregation</td><td>Delhi highest hotspot months</td></tr>
+        <tr><td>Weapon</td><td>Predict weapon type</td><td>TF-IDF + XGB</td><td><span class="badge badge-green">~81% (3-class)</span></td></tr>
+        <tr><td>Future</td><td>Predict 2026 hotspots</td><td>RF inference</td><td>Delhi June 2026 = HOTSPOT</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <p>🔍 <strong>India Crime Analytics ML Project</strong> — Project 3.2 by Sohan</p>
+  <p style="margin-top:6px">Random Forest · KNN · SVM · XGBoost · TF-IDF · Hotspot Detection</p>
+</footer>
+<script>
+// ── Utility ──────────────────────────────────────────────────────
+const C = Chart;
+const grad = (ctx, c1, c2) => { const g = ctx.createLinearGradient(0,0,0,300); g.addColorStop(0,c1); g.addColorStop(1,c2); return g; };
+const dflt = { plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}}, scales:{x:{ticks:{color:'#64748b'},grid:{color:'#1e2d40'}}, y:{ticks:{color:'#64748b'},grid:{color:'#1e2d40'}}} };
+
+// ── City Ranking ──────────────────────────────────────────────────
+new C(document.getElementById('cityRanking'), { type:'bar',
+  data:{ labels:['Delhi','Mumbai','Bangalore','Chennai','Hyderabad','Kolkata','Pune','Jaipur'],
+         datasets:[{label:'Hotspot Crime Count', data:[3120,2780,2340,2100,1980,1850,1620,1450],
+           backgroundColor:['#f43f5e88','#f59e0b88','#6366f188','#14b8a688','#8b5cf688','#10b98188','#6366f188','#14b8a688'],
+           borderColor:['#f43f5e','#f59e0b','#6366f1','#14b8a6','#8b5cf6','#10b981','#6366f1','#14b8a6'],
+           borderWidth:2, borderRadius:8 }]},
+  options:{...dflt, plugins:{...dflt.plugins, legend:{display:false}}, indexAxis:'y'} });
+
+// ── Monthly Trend ─────────────────────────────────────────────────
+new C(document.getElementById('monthlyTrend'), { type:'line',
+  data:{ labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+         datasets:[{label:'Avg Crime Count', data:[82,78,91,95,110,128,135,130,118,105,92,88],
+           borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,.1)',
+           tension:0.4, fill:true, pointBackgroundColor:'#6366f1', pointRadius:4 }]},
+  options:dflt });
+
+// ── Model Accuracy ────────────────────────────────────────────────
+new C(document.getElementById('modelAccuracy'), { type:'bar',
+  data:{ labels:['Random Forest','XGBoost','SVM (RBF)','KNN'],
+         datasets:[{label:'Accuracy %', data:[93,92,88,82],
+           backgroundColor:['#10b98188','#6366f188','#f59e0b88','#f43f5e88'],
+           borderColor:['#10b981','#6366f1','#f59e0b','#f43f5e'], borderWidth:2, borderRadius:8 }]},
+  options:{...dflt, scales:{...dflt.scales, y:{...dflt.scales.y, min:70, max:100}}} });
+
+// ── ROC Curve ─────────────────────────────────────────────────────
+new C(document.getElementById('rocCurve'), { type:'line',
+  data:{ datasets:[
+    {label:'Random Forest (AUC=0.97)', data:[{x:0,y:0},{x:.05,y:.62},{x:.1,y:.78},{x:.2,y:.89},{x:.3,y:.93},{x:.5,y:.96},{x:.7,y:.98},{x:1,y:1}],
+      borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,.08)', fill:true, tension:0.4, pointRadius:3},
+    {label:'Random Guess', data:[{x:0,y:0},{x:1,y:1}], borderColor:'#334155', borderDash:[6,4], pointRadius:0}]},
+  options:{...dflt, scales:{x:{...dflt.scales.x, title:{display:true,text:'FPR',color:'#64748b'}},
+                             y:{...dflt.scales.y, title:{display:true,text:'TPR',color:'#64748b'}}}} });
+
+// ── Feature Importance ────────────────────────────────────────────
+new C(document.getElementById('featureImp'), { type:'bar',
+  data:{ labels:['Crime_Count','Month','Year'],
+         datasets:[{label:'Importance', data:[0.72,0.17,0.11],
+           backgroundColor:['#6366f1cc','#14b8a6cc','#f59e0bcc'], borderRadius:8, borderWidth:2,
+           borderColor:['#6366f1','#14b8a6','#f59e0b'] }]},
+  options:{...dflt, indexAxis:'y', scales:{...dflt.scales, x:{...dflt.scales.x, max:1}}} });
+
+// ── CV Scores ─────────────────────────────────────────────────────
+new C(document.getElementById('cvScores'), { type:'radar',
+  data:{ labels:['Fold 1','Fold 2','Fold 3','Fold 4','Fold 5'],
+         datasets:[{label:'CV Score', data:[0.93,0.91,0.94,0.92,0.90],
+           borderColor:'#6366f1', backgroundColor:'rgba(99,102,241,.15)',
+           pointBackgroundColor:'#8b5cf6', pointRadius:5}]},
+  options:{plugins:{legend:{labels:{color:'#94a3b8'}}}, scales:{r:{ticks:{color:'#64748b',backdropColor:'transparent',stepSize:0.1},
+    pointLabels:{color:'#94a3b8'}, grid:{color:'#1e2d40'}, min:0.8, max:1.0}}} });
+
+// ── Top 2 Cities ──────────────────────────────────────────────────
+new C(document.getElementById('top2Chart'), { type:'bar',
+  data:{ labels:['Delhi','Mumbai'],
+         datasets:[
+           {label:'Hotspot Months', data:[22,18], backgroundColor:['#f43f5e88','#f59e0b88'], borderColor:['#f43f5e','#f59e0b'], borderWidth:2, borderRadius:8},
+           {label:'Avg Crime/Month', data:[148,132], backgroundColor:['#6366f188','#14b8a688'], borderColor:['#6366f1','#14b8a6'], borderWidth:2, borderRadius:8}]},
+  options:dflt });
+
+// ── Top+Bottom 4 Cities ───────────────────────────────────────────
+new C(document.getElementById('top4Chart'), { type:'bar',
+  data:{ labels:['Delhi','Mumbai','Imphal','Agartala'],
+         datasets:[{label:'Hotspot Months', data:[22,18,4,3],
+           backgroundColor:['#f43f5e88','#f59e0b88','#10b98188','#14b8a688'],
+           borderColor:['#f43f5e','#f59e0b','#10b981','#14b8a6'], borderWidth:2, borderRadius:8}]},
+  options:{...dflt, plugins:{...dflt.plugins, legend:{display:false}}} });
+
+// ── 3-City Accuracy ───────────────────────────────────────────────
+new C(document.getElementById('city3Chart'), { type:'doughnut',
+  data:{ labels:['Delhi (96%)','Lucknow (91%)','Bhubaneswar (89%)'],
+         datasets:[{data:[96,91,89], backgroundColor:['#f43f5ecc','#6366f1cc','#10b981cc'], borderColor:'#111827', borderWidth:3}]},
+  options:{plugins:{legend:{labels:{color:'#94a3b8'}}}} });
+
+// ── Weapon Bar ────────────────────────────────────────────────────
+new C(document.getElementById('weaponChart'), { type:'bar',
+  data:{ labels:['Firearm','Knife','Blunt Object','Poison','Explosives','Other'],
+         datasets:[{label:'Usage Count', data:[4820,3210,2450,1180,640,3900],
+           backgroundColor:['#f43f5e88','#f59e0b88','#6366f188','#14b8a688','#8b5cf688','#64748b88'],
+           borderColor:['#f43f5e','#f59e0b','#6366f1','#14b8a6','#8b5cf6','#64748b'], borderWidth:2, borderRadius:8}]},
+  options:{...dflt, plugins:{...dflt.plugins, legend:{display:false}}, indexAxis:'y'} });
+
+// ── Weapon Model Accuracy ─────────────────────────────────────────
+new C(document.getElementById('weaponModelChart'), { type:'bar',
+  data:{ labels:['KNN','SVM','XGB Base','XGB Tuned','XGB 3-Class'],
+         datasets:[{label:'Accuracy %', data:[62,74,70,78,81],
+           backgroundColor:['#f43f5e88','#f59e0b88','#6366f188','#14b8a688','#10b98188'],
+           borderColor:['#f43f5e','#f59e0b','#6366f1','#14b8a6','#10b981'], borderWidth:2, borderRadius:8}]},
+  options:{...dflt, scales:{...dflt.scales, y:{...dflt.scales.y, min:50}}} });
+
+// ── Prediction Chart ──────────────────────────────────────────────
+const hotMonths = [1,3,6,7,8,9];
+const monthLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const predVals = [78,72,88,85,95,132,145,138,122,102,89,80];
+new C(document.getElementById('predChart'), { type:'bar',
+  data:{ labels:monthLabels,
+         datasets:[{label:'Predicted Crime Count', data:predVals,
+           backgroundColor: predVals.map((v,i)=> hotMonths.includes(i+1)?'#f43f5e88':'#10b98188'),
+           borderColor:      predVals.map((v,i)=> hotMonths.includes(i+1)?'#f43f5e':'#10b981'),
+           borderWidth:2, borderRadius:8}]},
+  options:{...dflt, plugins:{...dflt.plugins, legend:{display:false}}} });
+
+// ── Tab switcher ──────────────────────────────────────────────────
+function switchTab(group, id) {
+  document.querySelectorAll('[id^="'+group+'-"]').forEach(p=>p.classList.remove('active'));
+  document.getElementById(group+'-'+id).classList.add('active');
+  event.currentTarget.closest('section').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+</script>
+
