@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: crime-analytics-india
+    env: static
+    staticPublishPath: .
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /crime_analytics.html
